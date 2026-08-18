@@ -26,13 +26,58 @@ bake_diff  = bpy.data.images['Bake Diff']
 bake_alpha = bpy.data.images['Bake Alpha']
 
 bpy.context.scene.render.engine = 'CYCLES'
-bpy.context.preferences.addons['cycles'].preferences.compute_device_type = 'HIP'
-bpy.context.preferences.addons['cycles'].preferences.get_devices()
 
-for device in bpy.context.preferences.addons['cycles'].preferences.devices:
-    device.use = True
+# Pick a GPU backend. Order is fastest-first; a backend is unusable if this
+# Blender build lacks it or it reports no devices (no card, no driver).
+# Override the probe with BAKE_DEVICE=OPTIX|CUDA|HIP|ONEAPI|METAL|CPU.
+#
+# Note: compute_device_type's enum is populated by a dynamic callback, so
+# introspecting bl_rna enum_items returns an empty list — the only reliable
+# test for "does this build support X" is to try the assignment. Likewise
+# prefs.devices lists every detected device regardless of the selected
+# backend, so get_devices_for_type() is what actually answers "is there a
+# card for this backend".
+def select_bake_device():
+    prefs = bpy.context.preferences.addons['cycles'].preferences
 
-bpy.context.scene.cycles.device = 'GPU'
+    forced = os.environ.get('BAKE_DEVICE', '').strip().upper()
+    if forced == 'CPU':
+        print("Device: CPU (forced by BAKE_DEVICE)")
+        return 'CPU'
+
+    order = [forced] if forced else ['OPTIX', 'CUDA', 'HIP', 'ONEAPI', 'METAL']
+
+    for backend in order:
+        try:
+            prefs.compute_device_type = backend
+        except TypeError:
+            print(f"Device: {backend} not supported by this Blender build, skipping")
+            continue
+
+        # refresh_devices() replaced get_devices() in 2.9x; keep both paths.
+        if hasattr(prefs, 'refresh_devices'):
+            prefs.refresh_devices()
+        else:
+            prefs.get_devices()
+
+        gpus = [d for d in prefs.get_devices_for_type(backend) if d.type == backend]
+        if not gpus:
+            print(f"Device: {backend} available but no devices found, skipping")
+            continue
+
+        for device in prefs.devices:
+            device.use = (device.type == backend)
+        print(f"Device: {backend} -> {', '.join(d.name for d in gpus)}")
+        return 'GPU'
+
+    prefs.compute_device_type = 'NONE'
+    for device in prefs.devices:
+        device.use = False
+    print("Device: no usable GPU backend found, falling back to CPU "
+          "(expect a long bake)")
+    return 'CPU'
+
+bpy.context.scene.cycles.device = select_bake_device()
 bpy.context.scene.cycles.samples = 1
 bpy.context.scene.cycles.use_denoising = False
 
