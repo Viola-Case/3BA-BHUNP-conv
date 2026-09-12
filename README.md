@@ -123,6 +123,13 @@ CPU, the GPU driver isn't visible to Blender.
 MIT — see [LICENSE](LICENSE). Use it, modify it, ship it, sell it; the only requirement is that
 the copyright notice and licence text travel with any substantial portion of the code.
 
-This covers the scripts and the `.blend` file in this repository only. Textures you run through
-it stay under whatever terms their original author set — converting a texture does not change
-who owns it, so check the source mod's permissions before redistributing output.
+One exception: `Conversion_Script.py` is **GPL-2.0-or-later**. It runs inside Blender and uses the
+`bpy` API, which the Blender Foundation treats as making a script a derivative work of Blender, so
+it carries a GPL-compatible licence to match. Everything else — `batch_bake.ps1`, the `.blend`, the
+docs — is MIT. Blender, ImageMagick and texconv are only ever invoked as separate processes, so
+their licences place no requirements on this repository.
+
+The body meshes inside `conversion.blend` were provided by their author under the WTFPL. Textures
+you run through the pipeline stay under whatever terms their original author set — converting a
+texture does not change who owns it, so check the source mod's permissions before redistributing
+output.
