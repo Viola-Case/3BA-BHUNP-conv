@@ -99,16 +99,19 @@ onto the destination surface by proximity.
 
 ## Troubleshooting
 
-**`KeyError: 'bpy_prop_collection[key]: key "..." not found'`** — a datablock in `conversion.blend`
+**`KeyError: 'bpy_prop_collection[key]: key "..." not found'`** -- a datablock in `conversion.blend`
 was renamed or deleted. Compare against the name table in CLAUDE.md.
 
-**Output is fully transparent** — the alpha pass baked black. Check that the `Source Image` node's
+**Output is fully transparent** -- the alpha pass baked black. Check that the `Source Image` node's
 second output really is Alpha; the pass index in the script is the socket index.
 
-**`magick` not recognised** — ImageMagick v6 installs as `convert`, not `magick`. Install v7.
+**`magick` not recognised** -- ImageMagick v6 installs as `convert`, not `magick`. Install v7.
 
-**Bake is extremely slow** — check the `Device:` line in the output. If it says it fell back to
+**Bake is extremely slow** -- check the `Device:` line in the output. If it says it fell back to
 CPU, the GPU driver isn't visible to Blender.
+
+**It doesn't work on my operating system** -- I'm working on that, give me a bit. Right now it's dependent
+on a powershell script but I'm adding bash script functionality with the next tag.
 
 ## Repository contents
 
