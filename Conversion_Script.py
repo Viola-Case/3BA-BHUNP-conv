@@ -20,6 +20,15 @@
 # This file uses Blender's bpy API and so is licensed GPL-2.0-or-later to stay
 # compatible with Blender itself. The rest of the repository is MIT; see
 # LICENSE and the License section of README.md.
+# 
+# 
+# 
+# I don't really understand pretty much anything in here. I don't really
+# work with python so I found it way easier to work with an LLM and discuss
+# the functionality and code process with it. I don't want to get into an
+# argument with anyone about this; you don't have to use my tool if you
+# don't want to.
+# 
 
 import bpy
 import sys
