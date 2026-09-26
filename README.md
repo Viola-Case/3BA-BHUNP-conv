@@ -57,7 +57,7 @@ alpha passes as two separate PNGs:
 ```powershell
 magick input.dds src.png
 blender --background --factory-startup .\conversion.blend --python .\Conversion_Script.py -- src.png diff.png alpha.png
-magick diff.png ( alpha.png -colorspace gray ) -compose CopyOpacity -composite merged.png
+magick diff.png ( alpha.png -colorspace gray -alpha off ) -compose CopyOpacity -composite merged.png
 ```
 
 Append `--reverse` after the three paths for BHUNP → 3BA.

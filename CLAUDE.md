@@ -28,7 +28,7 @@ Per source `.dds`, `batch_bake.ps1` runs:
 
 1. `magick` — source `.dds` → `_src.png` (Blender cannot load all Skyrim DDS variants reliably)
 2. Blender headless bake → `_diff.png` + `_alpha.png` (two separate files; the bake path cannot carry alpha through)
-3. `magick ... -compose CopyOpacity -composite` — recombine alpha into `_merged.png`
+3. `magick ... -compose CopyOpacity -composite` — recombine alpha into `_merged.png`. The mask needs `-alpha off`: Blender writes `_alpha.png` as RGBA with an opaque alpha channel, and CopyOpacity copies a mask's alpha channel (not its gray values) when it has one, giving a fully opaque result
 4. `texconv -f BC7_UNORM -bc x -m 1` — `_merged.png` → final `.dds`, moved over `$outFile`
 
 Directory structure under `-InputDir` is mirrored into `-OutputDir`; the temp dir (`$OutputDir\temp`) is deleted wholesale at the end.

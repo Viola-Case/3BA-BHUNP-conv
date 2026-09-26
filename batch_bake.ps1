@@ -57,8 +57,11 @@ Get-ChildItem -Path $InputDir -Recurse -Filter "*.dds" | ForEach-Object {
     & $Blender --background --factory-startup $BlendFile --python $Script -- $inputPng $tempDiff $tempAlpha @ScriptArgs
 
     # Merge diff and alpha into final PNG
+    # -alpha off matters: Blender saves the alpha bake as RGBA with a fully
+    # opaque alpha channel, and CopyOpacity copies that channel (not the gray
+    # values) whenever the mask has one, which yields an opaque result.
     Write-Host "Merging: $tempDiff, $tempAlpha -> $tempMerged"
-    magick $tempDiff `( $tempAlpha -colorspace gray `) -compose CopyOpacity -composite $tempMerged
+    magick $tempDiff `( $tempAlpha -colorspace gray -alpha off `) -compose CopyOpacity -composite $tempMerged
 
     Write-Host "Compressing: $tempMerged -> $outFile"
     & $Texconv -f BC7_UNORM -bc x -m 1 -y -nologo -o (Split-Path $tempMergedDds) $tempMerged
