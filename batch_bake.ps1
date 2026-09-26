@@ -12,6 +12,13 @@ param(
 
 $env:MAGICK_OCL_DEVICE = "true"
 
+# Work with absolute paths: the relative path of each texture is found by
+# cutting $InputDir off the front of its FullName, which only lines up if
+# $InputDir is absolute too. $OutputDir may not exist yet, so it can't go
+# through Resolve-Path.
+$InputDir  = (Resolve-Path -LiteralPath $InputDir -ErrorAction Stop).ProviderPath
+$OutputDir = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($OutputDir)
+
 # -Reverse converts BHUNP textures to 3BA instead of 3BA to BHUNP
 # (@() around the if: a one-element result would otherwise unroll to a plain
 # string, which splats one character per argument)
