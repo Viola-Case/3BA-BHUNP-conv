@@ -173,6 +173,23 @@ def bake_pass(socket_index, bake_node, output_path):
 # Diffuse pass
 src_img.filepath = input_path
 src_img.reload()
+
+# The bake targets are saved in the .blend at a fixed 4096x4096; swap in fresh
+# images at the source's size so the output keeps the input's resolution.
+# Image.scale() on the saved ones crashes Blender 5.1 (in OpenColorIO), hence
+# new datablocks rather than resizing in place.
+width, height = src_img.size
+if width == 0 or height == 0:
+    sys.exit(f"Could not load source image: {input_path}")
+print(f"Source size: {width}x{height}")
+for node in (diffuse_bake_node, alpha_bake_node):
+    old = node.image
+    if tuple(old.size) == (width, height):
+        continue
+    new = bpy.data.images.new(f"{old.name} {width}x{height}", width, height, alpha=True)
+    new.colorspace_settings.name = old.colorspace_settings.name
+    node.image = new
+
 bake_pass(0, diffuse_bake_node, diff_out)
 
 # Alpha pass — same image, just different socket

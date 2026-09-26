@@ -64,6 +64,8 @@ Two Cycles API quirks the probe works around — both verified against Blender 5
 - `compute_device_type`'s enum is filled by a dynamic callback, so `bl_rna.properties[...].enum_items` is **empty**. The only reliable support test is attempting the assignment and catching `TypeError`.
 - `prefs.devices` lists every detected device regardless of the selected backend (an AMD card shows up while `compute_device_type == 'OPTIX'`). Use `get_devices_for_type(backend)`, then still filter by `d.type == backend` — it includes the CPU too.
 
+Output resolution follows the source: `Bake Diff` / `Bake Alpha` are saved at 4096², so when the source differs the script creates new blank images at the source size (copying each one's colorspace) and assigns them to the bake nodes. Don't switch this to `Image.scale()` on the saved images — that crashes Blender 5.1 inside OpenColorIO.
+
 `samples = 1` and denoising off are deliberate — this is a straight texel transfer, not a lighting bake.
 
 ## `BATCH_CONVERSION.ps1` vs `batch_bake.ps1`
