@@ -40,6 +40,7 @@ into `-OutputDir`. Existing output files are overwritten.
 | `-Script` | `.\Conversion_Script.py` | the bake script Blender runs |
 | `-Blender` | `blender` | path to the Blender executable |
 | `-Texconv` | `texconv` | path to texconv |
+| `-DryRun` | off | list each source --> output (flagging overwrites) without converting or creating anything |
 
 ### Converting a single texture
 

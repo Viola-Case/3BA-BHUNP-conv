@@ -5,14 +5,23 @@ param(
     [string]$BlendFile = ".\conversion.blend",
     [string]$Script    = ".\Conversion_Script.py",
     [string]$Blender   = "blender",
-    [string]$Texconv = "texconv"
+    [string]$Texconv = "texconv",
+    [switch]$DryRun
     )
-    
+
 $env:MAGICK_OCL_DEVICE = "true"
 
 $TempDir = Join-Path $OutputDir "temp"
 
 Get-ChildItem -Path $InputDir -Recurse -Filter "*.dds" | ForEach-Object {
+    if ($DryRun) {
+        $relative = $_.FullName.Substring($InputDir.Length).TrimStart('\')
+        $outFile  = Join-Path $OutputDir $relative
+        $note     = if (Test-Path $outFile) { " (overwrite)" } else { "" }
+        Write-Host "Would convert: $relative -> $outFile$note"
+        return
+    }
+
     $relative  = $_.FullName.Substring($InputDir.Length).TrimStart('\')
     $outFile   = Join-Path $OutputDir ($relative -replace '\.dds$', '.dds')
     $tempDiff  = Join-Path $TempDir ($relative -replace '\.dds$', '_diff.png')
@@ -47,6 +56,6 @@ Get-ChildItem -Path $InputDir -Recurse -Filter "*.dds" | ForEach-Object {
 
 
 # Clean up temp dir
-Remove-Item $TempDir -Recurse -ErrorAction SilentlyContinue
+if (-not $DryRun) { Remove-Item $TempDir -Recurse -ErrorAction SilentlyContinue }
 
 Write-Host "Done."
