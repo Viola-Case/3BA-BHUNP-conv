@@ -1,4 +1,4 @@
-# 3BA -> BHUNP texture conversion bake, run inside Blender.
+# 3BA <-> BHUNP texture conversion bake, run inside Blender.
 #
 # Copyright (C) 2026 Viola-Case
 #
@@ -35,6 +35,11 @@ import sys
 import os
 
 args = sys.argv[sys.argv.index('--') + 1:]
+
+# --reverse bakes BHUNP -> 3BA instead of the default 3BA -> BHUNP.
+reverse = '--reverse' in args
+args = [a for a in args if a != '--reverse']
+
 input_path = args[0]
 diff_out   = args[1]
 alpha_out  = args[2]
@@ -46,6 +51,17 @@ dst_obj = bpy.data.objects['BHUNP_full']
 # Materials
 src_mat = bpy.data.materials['Source']
 dst_mat = bpy.data.materials['Destination']
+
+# Reverse direction: swap the object roles and which body wears which
+# material. Each body has a single material slot, so this is all it takes —
+# the Source/Destination node contract is unchanged. Nothing is saved back to
+# the .blend, so the swap only lives for this run.
+if reverse:
+    src_obj, dst_obj = dst_obj, src_obj
+    src_obj.material_slots[0].material = src_mat
+    dst_obj.material_slots[0].material = dst_mat
+
+print(f"Direction: {src_obj.name} -> {dst_obj.name}")
 
 # Nodes
 src_img_node      = src_mat.node_tree.nodes['Source Image']

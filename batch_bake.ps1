@@ -6,10 +6,17 @@ param(
     [string]$Script    = ".\Conversion_Script.py",
     [string]$Blender   = "blender",
     [string]$Texconv = "texconv",
+    [switch]$Reverse,
     [switch]$DryRun
     )
 
 $env:MAGICK_OCL_DEVICE = "true"
+
+# -Reverse converts BHUNP textures to 3BA instead of 3BA to BHUNP
+# (@() around the if: a one-element result would otherwise unroll to a plain
+# string, which splats one character per argument)
+$ScriptArgs = @(if ($Reverse) { "--reverse" })
+Write-Host ("Direction: " + $(if ($Reverse) { "BHUNP -> 3BA" } else { "3BA -> BHUNP" }))
 
 $TempDir = Join-Path $OutputDir "temp"
 
@@ -40,7 +47,7 @@ Get-ChildItem -Path $InputDir -Recurse -Filter "*.dds" | ForEach-Object {
     magick $_.FullName $inputPng
 
     # Bake
-    & $Blender --background --factory-startup $BlendFile --python $Script -- $inputPng $tempDiff $tempAlpha
+    & $Blender --background --factory-startup $BlendFile --python $Script -- $inputPng $tempDiff $tempAlpha @ScriptArgs
 
     # Merge diff and alpha into final PNG
     Write-Host "Merging: $tempDiff, $tempAlpha -> $tempMerged"

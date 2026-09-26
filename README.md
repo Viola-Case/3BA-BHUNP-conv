@@ -30,6 +30,12 @@ CPU baking is slow.
 Every `.dds` found recursively under `-InputDir` is converted, and the relative path is mirrored
 into `-OutputDir`. Existing output files are overwritten.
 
+To go the other way — **BHUNP → 3BA** — add `-Reverse`:
+
+```powershell
+.\batch_bake.ps1 -InputDir "C:\path\to\BHUNP textures" -OutputDir "C:\path\to\output" -Reverse
+```
+
 ### Parameters
 
 | Parameter | Default | |
@@ -40,6 +46,7 @@ into `-OutputDir`. Existing output files are overwritten.
 | `-Script` | `.\Conversion_Script.py` | the bake script Blender runs |
 | `-Blender` | `blender` | path to the Blender executable |
 | `-Texconv` | `texconv` | path to texconv |
+| `-Reverse` | off | convert BHUNP --> 3BA instead of 3BA → BHUNP |
 | `-DryRun` | off | list each source --> output (flagging overwrites) without converting or creating anything |
 
 ### Converting a single texture
@@ -52,6 +59,8 @@ magick input.dds src.png
 blender --background --factory-startup .\conversion.blend --python .\Conversion_Script.py -- src.png diff.png alpha.png
 magick diff.png ( alpha.png -colorspace gray ) -compose CopyOpacity -composite merged.png
 ```
+
+Append `--reverse` after the three paths for BHUNP → 3BA.
 
 ## How it works
 

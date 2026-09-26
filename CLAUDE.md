@@ -11,6 +11,8 @@ A texture conversion pipeline that transfers Skyrim body skin textures from the 
 ```powershell
 # Current driver (relative paths, BC7-compressed .dds output)
 .\batch_bake.ps1 -InputDir <dir of 3BA .dds> -OutputDir <dir>
+# BHUNP -> 3BA instead
+.\batch_bake.ps1 -InputDir <dir of BHUNP .dds> -OutputDir <dir> -Reverse
 
 # Single file, no batching — drive Blender directly
 blender --background --factory-startup .\conversion.blend --python .\Conversion_Script.py -- <src.png> <diff_out.png> <alpha_out.png>
@@ -46,6 +48,10 @@ Directory structure under `-InputDir` is mirrored into `-OutputDir`; the temp di
 | Image | `Source Image Data`, `Bake Diff`, `Bake Alpha` | datablocks whose pixels/filepaths the script drives |
 
 The transfer works by `bpy.ops.object.bake(type='EMIT', use_selected_to_active=True)` — the source's emission is projected onto the destination's UVs by proximity, so the two meshes must remain spatially aligned in the .blend.
+
+The table describes the forward (3BA → BHUNP) state as saved. `--reverse` (passed by `batch_bake.ps1 -Reverse`) swaps the object roles and reassigns the materials in memory — `Source` onto `BHUNP_full`, `Destination` onto `3BA_full` — before baking; it relies on each body having exactly one material slot. The .blend is never saved, so the swap doesn't persist.
+
+In `batch_bake.ps1`, the extra Blender args are built as `@(if ...)` on purpose: a bare `if` expression unrolls a one-element array to a string, which splats to a native command one character per argument.
 
 Each `bake_pass` rewires `Source Image.outputs[socket_index]` straight into `Material Output.Surface`, so the pass index (0 diffuse, 1 alpha) *is* the socket index. Any change to the node's socket ordering changes the meaning of those arguments.
 
